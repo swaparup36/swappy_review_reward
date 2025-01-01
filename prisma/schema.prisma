@@ -1,0 +1,47 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  userId      String  @id @default(uuid())
+  username    String  @unique
+  email       String  @unique
+  displayname String
+  passkey     String
+  publicKey   String
+  privateKey  Bytes
+  tasks       Tasks[]
+}
+
+model Tasks {
+  taskId          String   @id @default(uuid())
+  title           String
+  description     String
+  rewardPerperson Float
+  totalReward     Float
+  imageUrl        String
+  link            String
+  participants    String[] @default([])
+  creator         User     @relation(fields: [creatorId], references: [userId])
+  creatorId       String
+  createdOn       DateTime @default(now())
+}
+
+model loginChallenges {
+  id        Int      @id @default(autoincrement())
+  email     String
+  challenge String
+  createdOn DateTime @default(now())
+}
+
+model registrationChallenges {
+  id        Int      @id @default(autoincrement())
+  email     String
+  challenge String
+  createdOn DateTime @default(now())
+}
