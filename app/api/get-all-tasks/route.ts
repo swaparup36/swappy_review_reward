@@ -1,14 +1,15 @@
 import { NextResponse } from "next/server";
 import { PrismaClient } from '@prisma/client';
-import { Redis } from 'ioredis';
+// import { Redis } from 'ioredis';
+import redis from "@/app/utils/redisClient";
 
 const prisma = new PrismaClient();
-const client = new Redis();
+// const client = new Redis(process.env.REDIS_URL);
 
 export async function GET(){
     try {
         // First check if tasks exists in redis
-        const tasksFromCache = await client.get('alltasks');
+        const tasksFromCache = await redis.get('alltasks');
 
         if(tasksFromCache){
             return NextResponse.json({
@@ -21,8 +22,8 @@ export async function GET(){
         const allTasks = await prisma.tasks.findMany();
 
         // Setting all taks to redis
-        await client.set('alltasks', JSON.stringify(allTasks));
-        await client.expire('alltasks', 10);
+        await redis.set('alltasks', JSON.stringify(allTasks));
+        await redis.expire('alltasks', 10);
 
         return NextResponse.json({
             success: true,

@@ -5,7 +5,7 @@ import { Keypair } from "@solana/web3.js";
 import { Redis } from 'ioredis';
 
 const prisma = new PrismaClient();
-const redis = new Redis();
+const redis = new Redis(process.env.REDIS_URL);
 
 export async function POST(req: NextRequest){
     const body = await req.json();
