@@ -8,6 +8,15 @@ const prisma = new PrismaClient();
 export async function POST(req: NextRequest){
     const body = await req.json();
     try {
+        // check if environment variables are present or not
+        if(!process.env.PASSKEY_AUTH_EXPECTED_RPID || !process.env.PASSKEY_AUTH_EXPECTED_ORIGIN) {
+            return NextResponse.json({
+                success: false,
+                message: "env variables are missing"
+            });
+        }
+
+
         // Getting user from database
         const user = await prisma.user.findUnique({
             where: {
@@ -48,8 +57,8 @@ export async function POST(req: NextRequest){
 
         const result = await verifyAuthenticationResponse({
             expectedChallenge: challenge,
-            expectedOrigin: 'http://localhost:3000',
-            expectedRPID: 'localhost',
+            expectedOrigin: process.env.PASSKEY_AUTH_EXPECTED_ORIGIN,
+            expectedRPID: process.env.PASSKEY_AUTH_EXPECTED_RPID,
             response: body.cred,
             credential: {
                 id: passkey.credential.id,
