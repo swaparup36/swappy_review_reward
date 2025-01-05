@@ -1,9 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { generateRegistrationOptions } from '@simplewebauthn/server';
-// import { Redis } from 'ioredis';
 import redis from "@/app/utils/redisClient";
 
-// const redis = new Redis(process.env.REDIS_URL);
 
 export async function POST(req: NextRequest){
     const body = await req.json();

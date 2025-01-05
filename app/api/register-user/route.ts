@@ -2,10 +2,9 @@ import { NextRequest, NextResponse } from "next/server";
 import { verifyRegistrationResponse } from '@simplewebauthn/server';
 import { PrismaClient } from "@prisma/client";
 import { Keypair } from "@solana/web3.js";
-import { Redis } from 'ioredis';
+import redis from "@/app/utils/redisClient";
 
 const prisma = new PrismaClient();
-const redis = new Redis(process.env.REDIS_URL);
 
 export async function POST(req: NextRequest){
     const body = await req.json();
