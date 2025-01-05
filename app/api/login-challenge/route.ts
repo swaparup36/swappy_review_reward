@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { generateAuthenticationOptions } from '@simplewebauthn/server';
-import { PrismaClient } from "@prisma/client";
+import { Redis } from 'ioredis';
 
-const prisma = new PrismaClient()
+const client = new Redis();
 
 export async function POST(req: NextRequest){
     const body = await req.json();
@@ -14,29 +14,10 @@ export async function POST(req: NextRequest){
 
         console.log("opts: ", opts);
 
-        // Check if challenge exists with same email
-        const existingChallenge = await prisma.loginChallenges.findFirst({
-            where: {
-                email: body.email
-            }
-        });
-
-        if(existingChallenge) {
-            // Delete the challenge if it exists
-            await prisma.loginChallenges.delete({
-                where: {
-                    id: existingChallenge.id
-                }
-            });
-        }
-
-        // Store the challenge in the login challenge store
-        const loginChallenge = await prisma.loginChallenges.create({
-            data: {
-                email: body.email,
-                challenge: opts.challenge
-            }
-        });
+        const loginChallenge = opts.challenge;
+        // Store the challenge in redis
+        await client.set(`rr-loginChallenges:${body.email}`, loginChallenge);
+        await client.expire(`rr-loginChallenges:${body.email}`, 60);
 
         console.log("login challenge created: ", loginChallenge);
 

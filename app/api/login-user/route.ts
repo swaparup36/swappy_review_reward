@@ -1,8 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 import { verifyAuthenticationResponse } from '@simplewebauthn/server';
 import { PrismaClient } from "@prisma/client";
+import { Redis } from 'ioredis';
 
-const prisma = new PrismaClient()
+const prisma = new PrismaClient();
+const client = new Redis();
 
 export async function POST(req: NextRequest){
     const body = await req.json();
@@ -23,11 +25,8 @@ export async function POST(req: NextRequest){
         }
 
         // Finding and Verifying the passkey challenge
-        const challenge = await prisma.loginChallenges.findFirst({
-            where: {
-                email: body.email
-            }
-        })
+        const challenge = await client.get(`rr-loginChallenges:${body.email}`);
+
         console.log("expected Challenge: ", challenge);
 
         if(!challenge) {
@@ -37,12 +36,19 @@ export async function POST(req: NextRequest){
             });
         }
 
+        if(!user.passkey) {
+            return NextResponse.json({
+                success: false,
+                message: "Passkey not found"
+            });
+        }
+
         const passkey = JSON.parse(user?.passkey);
         const publicKeyUint8Array = new Uint8Array(Object.values(passkey.credential.publicKey));
         console.log("cred: ", body.cred);
 
         const result = await verifyAuthenticationResponse({
-            expectedChallenge: challenge?.challenge,
+            expectedChallenge: challenge,
             expectedOrigin: 'http://localhost:3000',
             expectedRPID: 'localhost',
             response: body.cred,

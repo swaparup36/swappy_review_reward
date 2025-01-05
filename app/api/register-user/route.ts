@@ -2,18 +2,17 @@ import { NextRequest, NextResponse } from "next/server";
 import { verifyRegistrationResponse } from '@simplewebauthn/server';
 import { PrismaClient } from "@prisma/client";
 import { Keypair } from "@solana/web3.js";
+import { Redis } from 'ioredis';
 
 const prisma = new PrismaClient();
+const redis = new Redis();
 
 export async function POST(req: NextRequest){
     const body = await req.json();
     try {
-        // Finding and Verifying the passkey challenge
-        const challenge = await prisma.registrationChallenges.findFirst({
-            where: {
-                email: body.email
-            }
-        });
+        // Getting the passkey challenge from redis
+        const challenge = await redis.get(`rr-registrationChallenges:${body.email}`);
+
         console.log("expected challenge: ", challenge);
 
         if(!challenge) {
@@ -24,7 +23,7 @@ export async function POST(req: NextRequest){
         }
 
         const verificationResult = await verifyRegistrationResponse({
-            expectedChallenge: challenge?.challenge,
+            expectedChallenge: challenge,
             expectedOrigin: 'http://localhost:3000',
             expectedRPID: 'localhost',
             response: body.cred,

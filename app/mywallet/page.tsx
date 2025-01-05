@@ -8,7 +8,7 @@ import { DepositModal } from "../components/DepositModal";
 import { GetContext } from "../context/walletProvider";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { LogOut } from "lucide-react";
+import { LogOut, RefreshCcw } from "lucide-react";
 
 const MyWallet = () => {
   const router = useRouter();
@@ -82,7 +82,8 @@ const MyWallet = () => {
                     <LogOut onClick={handleLogout} className="ml-4 cursor-pointer" />
                   </div>
                   <div className="flex flex-col md:flex-row justify-between w-full md:w-fit items-start md:items-center gap-4">
-                    <p className="font-semibold flex w-[150px]">{walletBalance} SOL</p>
+                    <p className="font-semibold flex md:w-fit w-[150px]">{walletBalance} SOL</p>
+                    <RefreshCcw className="cursor-pointer" onClick={getWalletBalance} />
                     <div className="flex flex-row justify-between items-center w-full md:w-fit">
                       <motion.button 
                           whileHover={{ scale: 1.02 }}

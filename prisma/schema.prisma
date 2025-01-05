@@ -33,17 +33,3 @@ model Tasks {
   creatorId       String
   createdOn       DateTime @default(now())
 }
-
-model loginChallenges {
-  id        Int      @id @default(autoincrement())
-  email     String
-  challenge String
-  createdOn DateTime @default(now())
-}
-
-model registrationChallenges {
-  id        Int      @id @default(autoincrement())
-  email     String
-  challenge String
-  createdOn DateTime @default(now())
-}
