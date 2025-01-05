@@ -5,9 +5,17 @@ import redis from "@/app/utils/redisClient";
 export async function POST(req: NextRequest){
     const body = await req.json();
     try {
+        // check if environment variables are present or not
+        if(!process.env.NEXT_PUBLIC_RPID) {
+            return NextResponse.json({
+                success: false,
+                message: "env variables are missing"
+            });
+        }
+        
         // Creating challenge for user and a unique key to map it
         const opts = await generateAuthenticationOptions({
-            rpID: 'localhost'
+            rpID: process.env.NEXT_PUBLIC_RPID
         });
 
         console.log("opts: ", opts);
