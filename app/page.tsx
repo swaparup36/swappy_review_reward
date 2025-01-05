@@ -8,7 +8,7 @@ import Navbar from './components/Navbar';
 
 const Hero = () => {
   return (
-    <div className="min-h-screen flex items-center bg-white pt-16">
+    <div className="min-h-screen flex items-center bg-white md:pt-16">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
         <div className="flex justify-between items-center">
           <div className="flex-1">

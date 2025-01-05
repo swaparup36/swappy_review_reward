@@ -17,6 +17,28 @@ export const passkeyRegistrationSchema = z.object({
     .max(100, 'Email must be less than 100 characters')
 });
 
+export const emailRegistrationSchema = z.object({
+  username: z
+    .string()
+    .min(3, 'Username must be at least 3 characters')
+    .max(50, 'Username must be less than 50 characters')
+    .regex(/^[a-zA-Z0-9_-]+$/, 'Username can only contain letters, numbers, underscores, and hyphens'),
+  displayName: z
+    .string()
+    .min(2, 'Display name must be at least 2 characters')
+    .max(50, 'Display name must be less than 50 characters'),
+  email: z
+    .string()
+    .email('Invalid email address')
+    .min(5, 'Email must be at least 5 characters')
+    .max(100, 'Email must be less than 100 characters'),
+  password: z
+    .string()
+    .min(8, 'Password must be at least 8 characters')
+    .max(100, 'Password must be less than 100 characters')
+    .regex(/^(?=.*[A-Za-z])(?=.*\d).+$/, 'Password must contain at least one letter and one number')
+});
+
 export const passkeyLoginSchema = z.object({
   email: z
     .string()
@@ -25,6 +47,19 @@ export const passkeyLoginSchema = z.object({
     .max(100, 'Email must be less than 100 characters')
 });
 
+
+export const emailLoginSchema = z.object({
+  email: z
+    .string()
+    .email('Invalid email address')
+    .min(5, 'Email must be at least 5 characters')
+    .max(100, 'Email must be less than 100 characters'),
+  password: z
+    .string()
+    .min(8, 'Password must be at least 8 characters')
+    .max(100, 'Password must be less than 100 characters')
+    .regex(/^(?=.*[A-Za-z])(?=.*\d).+$/, 'Password must contain at least one letter and one number')
+});
 
 export const CreateTaskSchema = z.object({
   title: z

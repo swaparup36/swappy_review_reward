@@ -46,7 +46,7 @@ function PassKeyRegistration() {
       displayName: '',
       email: ''
     });
-
+    const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
     const [errors, setErrors] = useState<Record<string, string> | null>(null);
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -56,6 +56,7 @@ function PassKeyRegistration() {
 
     const handleSubmit = async (e: React.FormEvent) => {
       e.preventDefault();
+      setIsSubmitting(true);
 
       const validationResult = passkeyRegistrationSchema.safeParse(formData);
       if(!validationResult.success) {
@@ -65,6 +66,7 @@ function PassKeyRegistration() {
             Object.entries(fieldErrors).map(([key, messages]) => [key, messages?.[0] || "Invalid field"])
           )
         );
+        setIsSubmitting(false);
         return console.log("zod error");
       }
       
@@ -77,6 +79,7 @@ function PassKeyRegistration() {
         });
 
         if(!createChallengeResponse.data.success){
+          setIsSubmitting(false);
           return console.log("error creating challenge");
         }
 
@@ -88,6 +91,7 @@ function PassKeyRegistration() {
 
         // Ensure the user property is defined and has the required fields
         if (!options.user || !options.user.displayName || !options.user.id || !options.user.name) {
+          setIsSubmitting(false);
           return console.log("error: user property is missing or incomplete in options");
         }
 
@@ -103,6 +107,7 @@ function PassKeyRegistration() {
         });
 
         if(!registerResponse.data.success){
+          setIsSubmitting(false);
           return console.log("error registering user");
         }
 
@@ -118,6 +123,8 @@ function PassKeyRegistration() {
       } catch (error) {
         console.error('Registration failed:', error);
       }
+
+      setIsSubmitting(false);
     };
 
     useEffect(()=>{
@@ -173,9 +180,10 @@ function PassKeyRegistration() {
               <motion.button
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
-                className="w-full bg-black text-white py-3 rounded-lg font-medium hover:bg-gray-800 transition-colors"
+                disabled={isSubmitting}
+                className="w-full bg-black text-white py-3 rounded-lg font-medium hover:bg-gray-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                Continue with Passkey
+                {isSubmitting ? "Loading..." : "Continue with Passkey"}
               </motion.button>
             </form>
           </motion.div>

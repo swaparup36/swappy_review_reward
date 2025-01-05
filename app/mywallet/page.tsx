@@ -8,6 +8,7 @@ import { DepositModal } from "../components/DepositModal";
 import { GetContext } from "../context/walletProvider";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { LogOut } from "lucide-react";
 
 const MyWallet = () => {
   const router = useRouter();
@@ -16,6 +17,12 @@ const MyWallet = () => {
   const [isWithdrawOpen, setIsWithdrawOpen] = useState<boolean>(false);
   const [isDepositOpen, setIsDepositOpen] = useState<boolean>(false);
   const depositAddress = typeof window !== 'undefined' ? localStorage.getItem("rr-publickey") || '' : '';
+
+  const handleLogout = () => {
+    localStorage.removeItem('rr-userid');
+    localStorage.removeItem('rr-publickey');
+    router.push('/start-earning');
+  }
 
   useEffect(() => {
     if(!localStorage.getItem('rr-userid')){
@@ -70,7 +77,10 @@ const MyWallet = () => {
             ) : (
               <div className="flex flex-col justify-center items-center w-full">
                 <div className="flex md:flex-row flex-col justify-between items-start md:items-center mb-8 w-full text-xl font-mono border-b-2 pb-8 border-gray-500 px-4 mt-5">
-                  <h2 className="font-semibold">Swaparup Mukherjee</h2>
+                  <div className="flex flex-row justify-between items-center w-full md:w-fit">
+                    <h2 className="font-semibold">Swaparup Mukherjee</h2>
+                    <LogOut onClick={handleLogout} className="ml-4 cursor-pointer" />
+                  </div>
                   <div className="flex flex-col md:flex-row justify-between w-full md:w-fit items-start md:items-center gap-4">
                     <p className="font-semibold flex w-[150px]">{walletBalance} SOL</p>
                     <div className="flex flex-row justify-between items-center w-full md:w-fit">

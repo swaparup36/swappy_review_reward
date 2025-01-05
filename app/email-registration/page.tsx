@@ -4,9 +4,7 @@ import React, { useEffect, useState } from 'react'
 import { motion } from 'framer-motion';
 import axios from 'axios';
 import { useRouter } from 'next/navigation';
-import { passkeyLoginSchema } from '../scemas/passkeyReg';
-import { startAuthentication, startRegistration } from '@simplewebauthn/browser';
-import { set } from 'zod';
+import { emailRegistrationSchema } from '../scemas/passkeyReg';
 
 const FormInput = ({ label, name, value, type, error, onChange, placeholder }: { label: string, name: string, value: string, type?: string, error?: string, onChange: (e: React.ChangeEvent<HTMLInputElement>) => void, placeholder: string }) => {
   return (
@@ -39,11 +37,14 @@ const FormInput = ({ label, name, value, type, error, onChange, placeholder }: {
   );
 };
 
-function PasskeyLogin() {
+function EmailRegistration() {
     const router = useRouter();
 
     const [formData, setFormData] = useState({
-      email: ''
+      username: '',
+      displayName: '',
+      email: '',
+      password: ''
     });
     const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
     const [errors, setErrors] = useState<Record<string, string> | null>(null);
@@ -57,7 +58,7 @@ function PasskeyLogin() {
       e.preventDefault();
       setIsSubmitting(true);
 
-      const validationResult = passkeyLoginSchema.safeParse(formData);
+      const validationResult = emailRegistrationSchema.safeParse(formData);
       if(!validationResult.success) {
         const fieldErrors = validationResult.error.flatten().fieldErrors;
         setErrors(
@@ -70,43 +71,26 @@ function PasskeyLogin() {
       }
       
       try {
-        console.log('Login with passkey:', formData);
-    
-        // Call passkey login api
-        const createChallengeResponse = await axios.post("/api/login-challenge", {
-          email: formData.email
-        });
+        console.log('Registering with email:', formData);
 
-        if(!createChallengeResponse.data.success){
-          setIsSubmitting(false);
-          return console.log("error creating challenge");
-        }
-
-        const options = createChallengeResponse.data.options;
-
-        console.log("options: ", options);
-
-        const authenticationResult = await startAuthentication({optionsJSON: options});
-
-        console.log("authenticationResult: ", authenticationResult);
-
-        const loginResponse = await axios.post("/api/login-user", {
+        const registerResponse = await axios.post("/api/register-user-email", {
+          displayname: formData.displayName,
           email: formData.email,
-          cred: authenticationResult
+          username: formData.username,
+          password: formData.password
         });
 
-        if(!loginResponse.data.success){
+        if(!registerResponse.data.success){
           setIsSubmitting(false);
-          return console.log("error login user: ", loginResponse.data.message);
+          return console.log("error registering user");
         }
 
-        console.log("userid: ", loginResponse.data);
-        const userId = loginResponse.data.userId;
+        console.log("userid: ", registerResponse.data);
+        const userId = registerResponse.data.newUser.userId;
         localStorage.setItem('rr-userid', userId);
-        
-        const publicKey = loginResponse.data.publicKey;
-        console.log("first publicKey: ", publicKey);
-        localStorage.setItem('rr-publickey', publicKey);
+
+        const publickey = registerResponse.data.newUser.publicKey;
+        localStorage.setItem('rr-publickey', publickey);
 
         router.push('/earn');
 
@@ -133,12 +117,30 @@ function PasskeyLogin() {
             transition={{ duration: 0.8 }}
           >
             <h1 className="text-5xl font-bold tracking-tight mb-8">
-              <span className="text-black">PASSKEY</span>
+              <span className="text-black">EMAIL</span>
               <br />
-              <span className="text-gray-400">SIGN IN</span>
+              <span className="text-gray-400">REGISTRATION</span>
             </h1>
 
             <form onSubmit={handleSubmit} className="space-y-6">
+              <FormInput
+                label="Username"
+                name="username"
+                value={formData.username}
+                onChange={handleChange}
+                error={errors?.userName}
+                placeholder="Enter your username"
+              />
+
+              <FormInput
+                label="Display Name"
+                name="displayName"
+                value={formData.displayName}
+                onChange={handleChange}
+                error={errors?.displayName}
+                placeholder="Enter your display name"
+              />
+
               <FormInput
                 label="Email"
                 name="email"
@@ -149,13 +151,24 @@ function PasskeyLogin() {
                 placeholder="Enter your email"
               />
 
+
+              <FormInput
+                label="Password"
+                name="password"
+                type="password"
+                value={formData.password}
+                onChange={handleChange}
+                error={errors?.password}
+                placeholder="Enter your password"
+              />
+
               <motion.button
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
                 disabled={isSubmitting}
                 className="w-full bg-black text-white py-3 rounded-lg font-medium hover:bg-gray-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                {isSubmitting ? 'Loading...' : 'Continue with Passkey'}
+                {isSubmitting ? "Loading..." : "Sign up"}
               </motion.button>
             </form>
           </motion.div>
@@ -165,4 +178,4 @@ function PasskeyLogin() {
   )
 }
 
-export default PasskeyLogin;
+export default EmailRegistration;

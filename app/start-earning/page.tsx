@@ -81,9 +81,9 @@ function StartEarning() {
                 />
 
                 <AuthOption
-                  title="Continue with Google"
-                  description="Use your Google account"
-                  onClick={()=>router.push('/passkey-registration')}
+                  title="Continue with Email"
+                  description="Use your email account"
+                  onClick={()=>router.push('/email-registration')}
                   icon="Lock"
                 />
 
