@@ -1,7 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import { generateRegistrationOptions } from '@simplewebauthn/server';
 import redis from "@/app/utils/redisClient";
+import { PrismaClient } from "@prisma/client";
 
+const prisma = new PrismaClient();
 
 export async function POST(req: NextRequest){
     const body = await req.json();
@@ -11,6 +13,25 @@ export async function POST(req: NextRequest){
             return NextResponse.json({
                 success: false,
                 message: "env variables are missing"
+            });
+        }
+
+        // Check if an user with that emailId and username already exists
+        const existingUserWithEmail = await prisma.user.findUnique({
+            where: {
+                email: body.email,
+            }
+        });
+        const existingUserWithUsername = await prisma.user.findUnique({
+            where: {
+                username: body.username,
+            }
+        });
+
+        if(existingUserWithEmail || existingUserWithUsername) {
+            return NextResponse.json({
+                success: false,
+                message: 'an user with this email or username already exists'
             });
         }
 

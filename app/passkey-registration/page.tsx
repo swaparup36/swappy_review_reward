@@ -6,6 +6,7 @@ import axios from 'axios';
 import { useRouter } from 'next/navigation';
 import { passkeyRegistrationSchema } from '../scemas/passkeyReg';
 import { startRegistration } from '@simplewebauthn/browser';
+import { ToastContainer, toast } from 'react-toastify';
 
 const FormInput = ({ label, name, value, type, error, onChange, placeholder }: { label: string, name: string, value: string, type?: string, error?: string, onChange: (e: React.ChangeEvent<HTMLInputElement>) => void, placeholder: string }) => {
   return (
@@ -75,11 +76,13 @@ function PassKeyRegistration() {
     
         // Call passkey reg api
         const createChallengeResponse = await axios.post("/api/register-challenge", {
-          email: formData.email
+          email: formData.email,
+          username: formData.username
         });
 
         if(!createChallengeResponse.data.success){
           setIsSubmitting(false);
+          toast.error(`error: ${createChallengeResponse.data.message}`);
           return console.log("error creating challenge");
         }
 
@@ -108,6 +111,7 @@ function PassKeyRegistration() {
 
         if(!registerResponse.data.success){
           setIsSubmitting(false);
+          toast.error(`error: ${registerResponse.data.message}`);
           return console.log("error registering user");
         }
 
@@ -134,62 +138,65 @@ function PassKeyRegistration() {
     }, []);
 
   return (
-    <div className="min-h-screen flex items-center bg-white pt-16">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
-        <div className="max-w-md mx-auto">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8 }}
-          >
-            <h1 className="text-5xl font-bold tracking-tight mb-8">
-              <span className="text-black">PASSKEY</span>
-              <br />
-              <span className="text-gray-400">REGISTRATION</span>
-            </h1>
+    <>
+      <ToastContainer />
+      <div className="min-h-screen flex items-center bg-white pt-16">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
+          <div className="max-w-md mx-auto">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8 }}
+            >
+              <h1 className="text-5xl font-bold tracking-tight mb-8">
+                <span className="text-black">PASSKEY</span>
+                <br />
+                <span className="text-gray-400">REGISTRATION</span>
+              </h1>
 
-            <form onSubmit={handleSubmit} className="space-y-6">
-              <FormInput
-                label="Username"
-                name="username"
-                value={formData.username}
-                onChange={handleChange}
-                error={errors?.userName}
-                placeholder="Enter your username"
-              />
+              <form onSubmit={handleSubmit} className="space-y-6">
+                <FormInput
+                  label="Username"
+                  name="username"
+                  value={formData.username}
+                  onChange={handleChange}
+                  error={errors?.username}
+                  placeholder="Enter your username"
+                />
 
-              <FormInput
-                label="Display Name"
-                name="displayName"
-                value={formData.displayName}
-                onChange={handleChange}
-                error={errors?.displayName}
-                placeholder="Enter your display name"
-              />
+                <FormInput
+                  label="Display Name"
+                  name="displayName"
+                  value={formData.displayName}
+                  onChange={handleChange}
+                  error={errors?.displayName}
+                  placeholder="Enter your display name"
+                />
 
-              <FormInput
-                label="Email"
-                name="email"
-                type="email"
-                value={formData.email}
-                onChange={handleChange}
-                error={errors?.userEmail}
-                placeholder="Enter your email"
-              />
+                <FormInput
+                  label="Email"
+                  name="email"
+                  type="email"
+                  value={formData.email}
+                  onChange={handleChange}
+                  error={errors?.userEmail}
+                  placeholder="Enter your email"
+                />
 
-              <motion.button
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
-                disabled={isSubmitting}
-                className="w-full bg-black text-white py-3 rounded-lg font-medium hover:bg-gray-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                {isSubmitting ? "Loading..." : "Continue with Passkey"}
-              </motion.button>
-            </form>
-          </motion.div>
+                <motion.button
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  disabled={isSubmitting}
+                  className="w-full bg-black text-white py-3 rounded-lg font-medium hover:bg-gray-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {isSubmitting ? "Loading..." : "Continue with Passkey"}
+                </motion.button>
+              </form>
+            </motion.div>
+          </div>
         </div>
       </div>
-    </div>
+    </>
   )
 }
 

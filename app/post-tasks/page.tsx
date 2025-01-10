@@ -6,7 +6,7 @@ import { CreateTaskSchema } from '../scemas/passkeyReg';
 import uploadProductImages from '../utils/uploader';
 import axios from 'axios';
 import { useRouter } from 'next/navigation';
-import { FileImage, MoveLeft, UploadCloud } from 'lucide-react';
+import { FileImage, UploadCloud } from 'lucide-react';
 import { ToastContainer, toast } from 'react-toastify';
 
 const FormInput = ({ label, name, value, type, error, onChange, placeholder }: { label: string, name: string, value: string | number, type?: string, error?: string, onChange: (e: React.ChangeEvent<HTMLInputElement>) => void, placeholder: string }) => {
@@ -172,12 +172,12 @@ function PostTasks() {
 
             <form onSubmit={onSubmit} className="space-y-6">
               <FormInput
-                  label="Title"
+                  label="Title of the place (must be exact as google maps)"
                   name="title"
                   value={formData.title}
                   onChange={handleChange}
                   error={errors?.title}
-                  placeholder="Enter task title"
+                  placeholder="Enter place title"
               />
 
               <div className="space-y-1">

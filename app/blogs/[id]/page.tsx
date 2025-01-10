@@ -73,9 +73,11 @@ const BlogPostPage = () => {
         />
         <span className="text-gray-500">{`${new Date(post.date).getDate()}-${new Date(post.date).getMonth()+1}-${new Date(post.date).getFullYear()}`}</span>
         <h1 className="text-4xl font-bold mt-2 mb-6">{post.title}</h1>
-        <div className="prose prose-lg max-w-none">
-            {post.content}
-        </div>
+        {post.content.split('\n').map((paragraph, index) => (
+          <div key={index} className="prose prose-lg max-w-none mt-2 mb-4">
+            {paragraph}
+          </div>
+        ))}
         </motion.article>
 
         <Footer />

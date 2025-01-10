@@ -24,7 +24,7 @@ const Hero = () => {
               </h1>
               
               <div className="mt-8 space-y-2 text-sm font-mono text-gray-500">
-                <p>REVIEW PLACES AND PRODUCTS AND SHARE YOUR EXPERIENCE</p>
+                <p>REVIEW PLACES AND SHARE YOUR EXPERIENCE ON GOOGLE MAPS</p>
                 <p></p>
                 <p>EARN REWARDS ON CAMPAIGN</p>
               </div>

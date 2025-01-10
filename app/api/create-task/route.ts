@@ -24,6 +24,20 @@ export async function POST(req: NextRequest){
             });
         }
 
+        // Check if task with same title already exists
+        const existingTask = await prisma.tasks.findFirst({
+            where: {
+                title: body.title
+            }
+        });
+
+        if(existingTask) {
+            return NextResponse.json({
+                success: false,
+                message: 'Task with same title already exists'
+            });
+        }
+
         // Check if the user has enough balance
         const response = await axios.post('https://solana-devnet.g.alchemy.com/v2/AlZpXuvewHz3Ty-rYFKn1Oc1kuMtDk8e', {
             jsonrpc: "2.0",
@@ -62,6 +76,42 @@ export async function POST(req: NextRequest){
         const signature = await sendAndConfirmTransaction(connection, transaction, [signer]);
 
         console.log("The signature is: ", signature);
+
+        // Now check if the place is findable through the api
+        const placeIdRes = await axios.get(`https://maps.googleapis.com/maps/api/place/findplacefromtext/json?input=${body.placeName}&inputtype=textquery&key=${process.env.NEXT_PUBLIC_GOOGLE_API_KEY}`)
+
+        if(placeIdRes.status !== 200){
+            return NextResponse.json({
+                success: false,
+                message: 'place not found'
+            });
+        }
+
+        let placeId: string | undefined;
+        
+        for(const candidate of placeIdRes.data.candidates){
+            const placeDetailsRes = await axios.get(`https://maps.googleapis.com/maps/api/place/details/json?place_id=${candidate.place_id}&fields=name&key=${process.env.NEXT_PUBLIC_GOOGLE_API_KEY}`);
+
+            if(placeDetailsRes.status !== 200){
+                return NextResponse.json({
+                    success: false,
+                    message: 'place not found'
+                });
+            }
+
+            if(placeDetailsRes.data.result.name === body.title){
+                placeId = candidate.place_id;
+                break;
+            }
+        }
+
+        if(!placeId) {
+            return NextResponse.json({
+                success: false,
+                message: 'No place with the given name was found. Try with another place.'
+            });
+        }
+
 
         // Create a new task
         const newTask = await prisma.tasks.create({

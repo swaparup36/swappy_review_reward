@@ -9,7 +9,7 @@ export async function POST(req: NextRequest){
     const body = await req.json();
     try {
         // check if environment variables are present or not
-        if(!process.env.PASSKEY_AUTH_EXPECTED_RPID || !process.env.PASSKEY_AUTH_EXPECTED_ORIGIN) {
+        if(!process.env.PASSKEY_AUTH_EXPECTED_RPID || !process.env.PASSKEY_AUTH_EXPECTED_ORIGIN || !process.env.DATABASE_URL) {
             return NextResponse.json({
                 success: false,
                 message: "env variables are missing"
