@@ -12,7 +12,7 @@ export async function POST(req: NextRequest){
         const userPublicKey = new PublicKey(body.userPublicKey);
         
         // Transfer the reward to the user
-        const transferIx = SystemProgram.transfer({
+        let transferIx = SystemProgram.transfer({
             fromPubkey: new PublicKey('G92PADjSvNoqYtQZ8fKq5GigN5t7MAQmfa1iZQDtC3Qn'),
             toPubkey: userPublicKey,
             lamports: body.reward * 1000000000
@@ -24,6 +24,22 @@ export async function POST(req: NextRequest){
 
         transaction.feePayer = new PublicKey('G92PADjSvNoqYtQZ8fKq5GigN5t7MAQmfa1iZQDtC3Qn');
         transaction.recentBlockhash = (await connection.getLatestBlockhash()).blockhash;
+
+        const transactionMessage = transaction.compileMessage();
+        const transactionFee = (await connection.getFeeForMessage(transactionMessage)).value;
+
+        if(!transactionFee) {
+            return NextResponse.json({
+                success: false,
+                message: 'Can not calculate transaction fees'
+            });
+        }
+
+        transferIx = SystemProgram.transfer({
+            fromPubkey: new PublicKey('G92PADjSvNoqYtQZ8fKq5GigN5t7MAQmfa1iZQDtC3Qn'),
+            toPubkey: userPublicKey,
+            lamports: (body.reward * 1000000000) - transactionFee
+        });
 
         if(!process.env.ESCROW_PRIVATE_KEY){
             return NextResponse.json({

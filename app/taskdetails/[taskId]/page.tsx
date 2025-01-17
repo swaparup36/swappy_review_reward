@@ -7,6 +7,7 @@ import React, { useEffect, useState } from 'react'
 import { Users } from 'lucide-react';
 import axios from 'axios';
 import { Task } from '@/app/lib/types';
+import { toast, ToastContainer } from 'react-toastify';
 
 
 function TaskDetails() {
@@ -18,6 +19,8 @@ function TaskDetails() {
     const [authorName, setAuthorName] = useState<string>('');
     const [isReviewAttempted, setIsReviewAttempted] = useState<boolean>(false);
     const [isReviewSubmitted, setIsReviewSubmitted] = useState<boolean>(false);
+    const [reviewStartingTimeStamp, setReviewStartingTimeStamp] = useState<number | null>(null);
+    const [isReviewSubmitting, setIsReviewSubmitting] = useState<boolean>(false);
 
     const getTask = async() => {
         console.log("taskid: ", taskId);
@@ -35,81 +38,142 @@ function TaskDetails() {
         }
     }
 
-    const handleStartReview = (link: string) => {
-        setIsReviewAttempted(true);
-        window.open(link, '_blank');
+    const handleStartReview = async(link: string) => {
+        try {
+            const reviewStartRes = await axios.post("/api/start-review-process");
+
+            if(!reviewStartRes.data.success){
+                return toast.error(`Can not start review process: ${reviewStartRes.data.message}`);
+            }
+            setReviewStartingTimeStamp(reviewStartRes.data.currentTimestamp);
+            setIsReviewAttempted(true);
+            window.open(link, '_blank');
+        } catch (error) {
+            toast.error(`Can not start review process: ${error}`);
+        }
     }
 
     const handleConfirmReviewSubmission = async(placeName: string, authorName: string) => {
-        const userId = localStorage.getItem('rr-userid');
-        const userPublicKey = localStorage.getItem('rr-publickey');
+        setIsReviewSubmitting(true);
+        try {
+            const userId = localStorage.getItem('rr-userid');
+            const userPublicKey = localStorage.getItem('rr-publickey');
 
-        if(!task) return console.log("task not found");
-
-        if(task?.creatorId === userId) return console.log("Creator can't submit review");
-        if(task?.participants.includes(userId)) return console.log("Review already Submitted");
-
-        const response = await axios.post('/api/get-placeid', {
-            placeName: placeName,
-        });
-
-        console.log("placeid: ", response.data);
-
-        if(!response.data.success){
-            return console.log("something went wrong: ", response.data.message);
-        }
-
-        const requiredReviews = response.data.reviews.filter((review)=>{
-            return review.author_name === authorName;
-        });
-
-        console.log("requiredReviews: ", requiredReviews);
-
-        if(requiredReviews.length > 0){
-            console.log("Reward the user");
-
-            // Reward the user
-            const rewardRes = await axios.post('/api/reward-user', {
-                userPublicKey: userPublicKey,
-                reward: task.rewardPerperson
-            });
-
-            if(!rewardRes.data.success){
-                return console.log("error rewarding user");
+            if(!task){
+                setIsReviewSubmitting(false);
+                return toast.error("task not found");
             }
 
-            console.log("reward signature: ", rewardRes.data.signature);
-
-            // Update Task
-            const newParticipants = task?.participants;
-            newParticipants?.push(userId);
-
-            const updateTaskRes = await axios.put("/api/update-task", {
-                participants: newParticipants,
-                taskId: taskId
-            });
-
-            if(!updateTaskRes.data.success){
-                return console.log("error updating task");
+            if(!reviewStartingTimeStamp) {
+                setIsReviewSubmitting(false);
+                return toast.error("timestamp not found");
             }
 
-            // Check if task reward ended --> if ended then delete task from database
-            if(task?.totalReward == task?.rewardPerperson*newParticipants?.length){
-                const deleteTaskRes = await axios.post("/api/delete-task", {
+            if(task?.creatorId === userId) {
+                setIsReviewSubmitting(false);
+                return toast.error("Creator can't submit review");
+            }
+
+            if(!userId) {
+                setIsReviewSubmitting(false);
+                return toast.error("UserId is not null");
+            }
+
+            if(task?.participants.includes(userId)) {
+                setIsReviewSubmitting(false);
+                return toast.error("Review already Submitted");
+            }
+
+            const response = await axios.post('/api/get-placeid', {
+                placeName: placeName,
+            });
+
+            console.log("placeid: ", response.data);
+
+            if(!response.data.success){
+                setIsReviewSubmitting(false);
+                console.log("something went wrong: ", response.data.message)
+                return toast.error(`something went wrong: ${response.data.message}`);
+            }
+
+            const requiredReviews = response.data.reviews.filter((review)=>{
+                return review.author_name === authorName;
+            });
+
+            console.log("requiredReviews: ", requiredReviews);
+
+            console.log("review starts at: ", reviewStartingTimeStamp);
+            console.log("review ends at: ", reviewStartingTimeStamp + (5 * 60));
+            console.log("review posted at: ", requiredReviews[0].time);
+
+            if(reviewStartingTimeStamp > requiredReviews[0].time && requiredReviews[0].time < reviewStartingTimeStamp + (5 * 60)) {
+                setIsReviewSubmitting(false);
+                return toast.error("Review not submitted within 5 minutes");
+            }
+
+            if(requiredReviews[0].rating < 3) {
+                setIsReviewSubmitting(false);
+                return toast.error("Review submitted but rating was less than 3");
+            }
+
+            if(requiredReviews.length > 0){
+                console.log("Reward the user");
+
+                // Reward the user
+                const rewardRes = await axios.post('/api/reward-user', {
+                    userPublicKey: userPublicKey,
+                    reward: task.rewardPerperson
+                });
+
+                if(!rewardRes.data.success){
+                    setIsReviewSubmitting(false);
+                    console.log("error rewarding user: ", rewardRes.data.message)
+                    return toast.error(`error rewarding user: ${rewardRes.data.message}`);
+                }
+
+                console.log("reward signature: ", rewardRes.data.signature);
+
+                // Update Task
+                const newParticipants = task?.participants;
+                newParticipants?.push(userId);
+
+                const updateTaskRes = await axios.put("/api/update-task", {
+                    participants: newParticipants,
                     taskId: taskId
                 });
 
-                if(!deleteTaskRes.data.success) {
-                    console.log("error deleting task");
-                }else{
-                    console.log("task deleted successfully");
+                if(!updateTaskRes.data.success){
+                    setIsReviewSubmitting(false);
+                    console.log("error updating task: ", updateTaskRes.data.message);
+                    return toast.error(`error updating task: ${updateTaskRes.data.message}`);
                 }
-            }
 
-            router.push('/earn');
-            
-        }else{
-            console.log("Review not submitted");
+                setIsReviewSubmitting(false);
+                setIsReviewSubmitted(true);
+
+                // Check if task reward ended --> if ended then delete task from database
+                if(task?.totalReward == task?.rewardPerperson*newParticipants?.length){
+                    const deleteTaskRes = await axios.post("/api/delete-task", {
+                        taskId: taskId
+                    });
+
+                    if(!deleteTaskRes.data.success) {
+                        console.log("error deleting task");
+                    }else{
+                        console.log("task deleted successfully");
+                    }
+                }
+
+                router.push('/earn');
+                
+            }else{
+                toast.error("Review not submitted");
+                setIsReviewSubmitting(false);
+                console.log("Review not submitted");
+            }
+        } catch (error) {
+            setIsReviewSubmitting(false);
+            toast.error(`Review not submitted: ${error}`);
         }
     }
 
@@ -123,6 +187,8 @@ function TaskDetails() {
 
     return (
         <>
+            <ToastContainer />
+         
             {
                 (task && !isReviewSubmitted) &&
                 <div className="min-h-screen bg-white pt-16">
@@ -191,14 +257,27 @@ function TaskDetails() {
                                         <label htmlFor="author_name" className='my-2 text-gray-900'>Author Name</label>
                                         <input className='w-full rounded-md py-2 px-2 border-2 border-gray-700 text-gray-950 bg-white' id='author_name' type="text" value={authorName} onChange={(e)=>setAuthorName(e.target.value)} />
                                     </div>
-                                    <motion.button
-                                        whileHover={{ scale: 1.02 }}
-                                        whileTap={{ scale: 0.98 }}
-                                        onClick={()=>handleConfirmReviewSubmission(task?.title, authorName)}
-                                        className="w-full bg-black text-white py-2 rounded-lg font-medium hover:bg-gray-800 transition-colors text-lg"
-                                    >
-                                        Confirm Your Submission
-                                    </motion.button>
+                                    {
+                                        isReviewSubmitting ? (
+                                            <motion.button
+                                                whileHover={{ scale: 1.02 }}
+                                                whileTap={{ scale: 0.98 }}
+                                                onClick={()=>handleConfirmReviewSubmission(task?.title, authorName)}
+                                                className="w-full bg-black opacity-50 cursor-not-allowed text-white py-2 rounded-lg font-medium transition-colors text-lg"
+                                            >
+                                                Submitting...
+                                            </motion.button>
+                                        ) : (
+                                            <motion.button
+                                                whileHover={{ scale: 1.02 }}
+                                                whileTap={{ scale: 0.98 }}
+                                                onClick={()=>handleConfirmReviewSubmission(task?.title, authorName)}
+                                                className="w-full bg-black text-white py-2 rounded-lg font-medium hover:bg-gray-800 transition-colors text-lg"
+                                            >
+                                                Confirm Your Submission
+                                            </motion.button>
+                                        )
+                                    }
                                 </div>
                             }
                 

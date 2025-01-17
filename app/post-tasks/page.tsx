@@ -94,7 +94,10 @@ function PostTasks() {
         try {
             setIsSubmitting(true);
             try {
-                if(!image) return console.log("image is not provied");
+                if(!image) {
+                  toast.error("image is not provied");
+                  return console.log("image is not provied");
+                }
 
                 let img_url = '';
 
@@ -104,7 +107,8 @@ function PostTasks() {
                 const uploadImgResObj = JSON.parse(uoloadImgRes);
 
                 if(!uploadImgResObj.success){
-                    return console.log("error uploading image: ", uploadImgResObj.error);
+                  toast.error(`error uploading image: ${uploadImgResObj.error}`);
+                  return console.log("error uploading image: ", uploadImgResObj.error);
                 }
                 img_url = uploadImgResObj.imageURL;
 
@@ -132,12 +136,14 @@ function PostTasks() {
                 
                 console.log("new task to submit: ", formData);
             } catch (error) {
-                console.error('Failed to post task:', error);
+                toast.error(`Failed to post task: ${error}`);
+                console.error('Failed to post task: ', error);
                 throw error;
             } finally {
                 setIsSubmitting(false);
             }
         } catch (error) {
+          toast.error(`Form submission failed: ${error}`);
           console.log('Form submission failed:', error);
         }
     };

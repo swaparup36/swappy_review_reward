@@ -81,7 +81,7 @@ export const CreateTaskSchema = z.object({
   link: z
     .string()
     .url('Please enter a valid URL')
-    .max(200, 'URL must be less than 200 characters'),
+    .max(500, 'URL must be less than 200 characters'),
 });
 
 export const WithdrawSchema = z.object({
