@@ -96,7 +96,7 @@ export function DepositModal({ isOpen, onClose, address }: DepositModalProps) {
 
           {/* Info Text */}
           <p className="text-center text-sm text-gray-500">
-            Only deposited SOL can be used. {"Don't"} deposit other tokens{" "}
+            Only deposited USDC can be used. {"Don't"} deposit other tokens{" "}
           </p>
 
           {/* Copy Button */}

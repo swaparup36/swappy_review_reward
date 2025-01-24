@@ -82,7 +82,7 @@ const MyWallet = () => {
                     <LogOut onClick={handleLogout} className="ml-4 cursor-pointer" />
                   </div>
                   <div className="flex flex-col md:flex-row justify-between w-full md:w-fit items-start md:items-center gap-4">
-                    <p className="font-semibold flex md:w-fit w-[150px]">{walletBalance} SOL</p>
+                    <p className="font-semibold flex md:w-fit w-[150px]">{walletBalance} USDC</p>
                     <RefreshCcw className="cursor-pointer" onClick={getWalletBalance} />
                     <div className="flex flex-row justify-between items-center w-full md:w-fit">
                       <motion.button 

@@ -9,31 +9,33 @@ import { Wallet } from 'lucide-react';
 import { Task } from '../lib/types';
 import Footer from '../components/Footer';
 import { useRouter } from 'next/navigation';
+import { GetContext } from '../context/walletProvider';
 
 
 
 const EarningsPage = () => {
   const router = useRouter();
 
+  const { getWalletBalance, walletBalance } = GetContext();
   const [tasks, setTasks] = useState<Task[]>([]);
-  const [walletBalance, setWalletBalance] = useState<number>(0);
+  // const [walletBalance, setWalletBalance] = useState<number>(0);
   const [isLoading, setIsLoading] = useState<boolean>(true);
 
-  const getWalletBalance = async() => {
-    const userPublicKey = localStorage.getItem('rr-publickey');
-    const response = await axios.post('https://solana-devnet.g.alchemy.com/v2/AlZpXuvewHz3Ty-rYFKn1Oc1kuMtDk8e', {
-      jsonrpc: "2.0",
-      id: 1,
-      method: "getBalance",
-      params: [userPublicKey]
-    });
+  // const getWalletBalance = async() => {
+  //   const userPublicKey = localStorage.getItem('rr-publickey');
+  //   const response = await axios.post('https://solana-devnet.g.alchemy.com/v2/AlZpXuvewHz3Ty-rYFKn1Oc1kuMtDk8e', {
+  //     jsonrpc: "2.0",
+  //     id: 1,
+  //     method: "getBalance",
+  //     params: [userPublicKey]
+  //   });
 
-    if(response.data.result.value) {
-      setWalletBalance(response.data.result.value/1000000000);
-    } else {
-      console.log("Error fetching wallet balance");
-    }
-  }
+  //   if(response.data.result.value) {
+  //     setWalletBalance(response.data.result.value/1000000000);
+  //   } else {
+  //     console.log("Error fetching wallet balance");
+  //   }
+  // }
 
   const getAllTasks = async() => {
     const userId = localStorage.getItem('rr-userid');
@@ -87,7 +89,7 @@ const EarningsPage = () => {
 
                 <Link href={'/mywallet'} className='bg-white flex flex-col justify-center items-center mx-5 p-1'>
                   <Wallet size={35} />
-                  <p className='font-semibold'>{walletBalance} SOL</p>
+                  <p className='font-semibold'>{walletBalance} USDC</p>
                 </Link>
               </div>
             </div>

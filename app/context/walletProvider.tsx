@@ -42,13 +42,23 @@ export const WalletProvider = ({children}: {children: ReactNode}) => {
           {
             jsonrpc: "2.0",
             id: 1,
-            method: "getBalance",
-            params: [userPublicKey],
+            method: "getTokenAccountsByOwner",
+            params: [
+              userPublicKey,
+              {
+                mint: "4zMMC9srt5Ri5X14GAgXhaHii3GnPAEERYPJgZJDncDU"
+              },
+              {
+                encoding: "jsonParsed"
+              }
+            ],
           }
         );
-    
-        if (response.data.result.value) {
-          setWalletBalance(response.data.result.value / 1000000000);
+
+        
+        if (response.data.result.value.length !== 0) {
+          const usdcBalance = response.data.result.value[0].account.data.parsed.info.tokenAmount.amount;
+          setWalletBalance(usdcBalance / 1000000);
         } else {
           console.log("Error fetching wallet balance");
         }
@@ -63,6 +73,8 @@ export const WalletProvider = ({children}: {children: ReactNode}) => {
           }
         );
     
+        console.log("get all transactions: ", response.data);
+
         if (response.data.success) {
           setAllTransactions(response.data.transactions);
           setWalletIsLoading(false);

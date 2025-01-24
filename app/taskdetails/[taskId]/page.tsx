@@ -227,7 +227,7 @@ function TaskDetails() {
                                     width={200}
                                 />
                                 <div className="absolute top-6 right-6 bg-black text-white px-6 py-3 rounded-full text-lg">
-                                    {task && task?.rewardPerperson} SOL
+                                    {task && task?.rewardPerperson} USDC
                                 </div>
                             </div>
                 
@@ -253,6 +253,7 @@ function TaskDetails() {
                             {
                                 isReviewAttempted &&
                                 <div className='flex flex-col justify-between items-center'>
+                                    <p className='text-lg text-gray-600 font-semibold'>Submit review within 5 minutes to have a valid submission</p>
                                     <div className='flex flex-col w-full my-4'>
                                         <label htmlFor="author_name" className='my-2 text-gray-900'>Author Name</label>
                                         <input className='w-full rounded-md py-2 px-2 border-2 border-gray-700 text-gray-950 bg-white' id='author_name' type="text" value={authorName} onChange={(e)=>setAuthorName(e.target.value)} />
@@ -282,7 +283,7 @@ function TaskDetails() {
                             }
                 
                             <div className="text-sm font-mono mt-8 text-gray-500 text-center">
-                                <p>REVIEW TASK / EARN {task && task?.rewardPerperson} SOL</p>
+                                <p>REVIEW TASK / EARN {task && task?.rewardPerperson} USDC</p>
                                 <p>SHARE FEEDBACK / GET PAID</p>
                             </div>
                             </div>
@@ -341,7 +342,7 @@ function TaskDetails() {
                                     width={200}
                                 />
                                 <div className="absolute top-6 right-6 bg-black text-white px-6 py-3 rounded-full text-lg">
-                                    {task && task?.rewardPerperson} SOL
+                                    {task && task?.rewardPerperson} USDC
                                 </div>
                             </div>
                 
@@ -357,7 +358,7 @@ function TaskDetails() {
                             </div>
                 
                             <div className="text-sm font-mono mt-8 text-gray-500 text-center">
-                                <p>REVIEW TASK / EARN {task && task?.rewardPerperson} SOL</p>
+                                <p>REVIEW TASK / EARN {task && task?.rewardPerperson} USDC</p>
                                 <p>SHARE FEEDBACK / GET PAID</p>
                             </div>
                             </div>

@@ -72,12 +72,12 @@ export const CreateTaskSchema = z.object({
     .max(500, 'Description must be less than 500 characters'),
   rewardPerPerson: z
     .number()
-    .min(0.01, 'Reward per person must be at least 0.01 SOL')
-    .max(10, 'Reward per person cannot exceed 10 SOL'),
+    .min(0.01, 'Reward per person must be at least 0.01 USDC')
+    .max(10, 'Reward per person cannot exceed 10 USDC'),
   totalReward: z
     .number()
-    .min(0.01, 'Total reward must be at least 0.01 SOL')
-    .max(10000, 'Total reward cannot exceed 10000 SOL'),
+    .min(0.01, 'Total reward must be at least 0.01 USDC')
+    .max(10000, 'Total reward cannot exceed 10000 USDC'),
   link: z
     .string()
     .url('Please enter a valid URL')
@@ -87,8 +87,8 @@ export const CreateTaskSchema = z.object({
 export const WithdrawSchema = z.object({
   amount: z
     .number()
-    .min(0.001, 'Amount must be at least 0 SOL')
-    .max(100, 'Amount cannot exceed 100 SOL'),
+    .min(0.1, 'Amount must be at least 0.1 USDC')
+    .max(100, 'Amount cannot exceed 100 USDC'),
   address: z
     .string()
     .min(32, 'Address must be at least 32 characters')

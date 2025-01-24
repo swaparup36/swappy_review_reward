@@ -131,8 +131,8 @@ export function WithdrawModal({ isOpen, onClose, balance }: WithdrawModalProps) 
     }
 
     try {
-      // Call api to withdraw SOL
-      const withdrawResponse = await axios.post('/api/withdraw-sol', {
+      // Call api to withdraw USDc
+      const withdrawResponse = await axios.post('/api/withdraw-usdc', {
         publicKey: typeof window !== 'undefined' ? localStorage.getItem('rr-publickey') || '' : '',
         userId: typeof window !== 'undefined' ? localStorage.getItem('rr-userid') || '' : '',
         ...withdrawFormData
@@ -141,7 +141,7 @@ export function WithdrawModal({ isOpen, onClose, balance }: WithdrawModalProps) 
       console.log("withdraw response: ", withdrawResponse.data);
 
       if(withdrawResponse.data.success){
-        console.log(`${withdrawFormData.amount} SOL has been transfered to ${withdrawFormData.address}`);
+        console.log(`${withdrawFormData.amount} USDC has been transfered to ${withdrawFormData.address}`);
         setWithdrawFormData({
           amount: 0,
           address: ''
@@ -246,9 +246,9 @@ export function WithdrawModal({ isOpen, onClose, balance }: WithdrawModalProps) 
           <>
             <DialogContent>
               <DialogHeader>
-                <DialogTitle>Withdraw SOL</DialogTitle>
+                <DialogTitle>Withdraw USDC</DialogTitle>
                 <DialogDescription>
-                  Available balance: {balance} SOL
+                  Available balance: {balance} USDC
                 </DialogDescription>
               </DialogHeader>
               <form onSubmit={handleSubmit}>
@@ -261,7 +261,7 @@ export function WithdrawModal({ isOpen, onClose, balance }: WithdrawModalProps) 
                           value={withdrawFormData.amount}
                           onChange={(e) => setWithdrawFormData({ ...withdrawFormData, amount: parseFloat(e.target.value) })}
                           error={errors?.amount}
-                          placeholder="Enter amount in SOL"
+                          placeholder="Enter amount in USDC"
                       />
                       <FormInput
                           label="Wallet Address"
@@ -270,7 +270,7 @@ export function WithdrawModal({ isOpen, onClose, balance }: WithdrawModalProps) 
                           value={withdrawFormData.address}
                           onChange={(e) => setWithdrawFormData({ ...withdrawFormData, address: e.target.value })}
                           error={errors?.address}
-                          placeholder="Enter your SOL address"
+                          placeholder="Enter your USDC address SOLANA chain"
                       />
                   </div>
                 </div>

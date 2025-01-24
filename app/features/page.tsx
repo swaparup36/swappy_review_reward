@@ -17,7 +17,7 @@ const features: FeatureType[] = [
     {
       id: 1,
       title: 'Secure Wallet Integration',
-      description: 'Manage your Solana tokens securely with our integrated wallet system.',
+      description: 'Manage your USDC tokens securely with our integrated wallet system.',
       icon: <Wallet />
     },
     {
