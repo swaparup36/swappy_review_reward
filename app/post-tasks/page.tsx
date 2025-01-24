@@ -123,6 +123,8 @@ function PostTasks() {
                     link: formData.link,
                     rewardPerperson: formData.rewardPerPerson,
                     totalReward: formData.totalReward
+                },{
+                  timeout: 60000
                 });
 
                 console.log("create task response: ", postTaskRes.data);

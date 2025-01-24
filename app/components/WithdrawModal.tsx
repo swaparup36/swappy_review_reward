@@ -136,6 +136,8 @@ export function WithdrawModal({ isOpen, onClose, balance }: WithdrawModalProps) 
         publicKey: typeof window !== 'undefined' ? localStorage.getItem('rr-publickey') || '' : '',
         userId: typeof window !== 'undefined' ? localStorage.getItem('rr-userid') || '' : '',
         ...withdrawFormData
+      },{
+        timeout: 60000
       });
 
       console.log("withdraw response: ", withdrawResponse.data);

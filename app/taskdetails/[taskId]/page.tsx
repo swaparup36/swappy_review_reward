@@ -86,6 +86,8 @@ function TaskDetails() {
 
             const response = await axios.post('/api/get-placeid', {
                 placeName: placeName,
+            },{
+                timeout: 15000
             });
 
             console.log("placeid: ", response.data);
@@ -123,6 +125,8 @@ function TaskDetails() {
                 const rewardRes = await axios.post('/api/reward-user', {
                     userPublicKey: userPublicKey,
                     reward: task.rewardPerperson
+                },{
+                    timeout: 60000
                 });
 
                 if(!rewardRes.data.success){
@@ -140,6 +144,8 @@ function TaskDetails() {
                 const updateTaskRes = await axios.put("/api/update-task", {
                     participants: newParticipants,
                     taskId: taskId
+                }, {
+                    timeout: 20000
                 });
 
                 if(!updateTaskRes.data.success){
@@ -155,6 +161,8 @@ function TaskDetails() {
                 if(task?.totalReward == task?.rewardPerperson*newParticipants?.length){
                     const deleteTaskRes = await axios.post("/api/delete-task", {
                         taskId: taskId
+                    }, {
+                        timeout: 15000
                     });
 
                     if(!deleteTaskRes.data.success) {

@@ -1,6 +1,6 @@
 "use server"
 import { S3Client, PutObjectCommand } from "@aws-sdk/client-s3";
-// import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
+import { v4 as uuidv4 } from "uuid";
 import * as dotenv from "dotenv";
 dotenv.config();
 
@@ -20,6 +20,8 @@ export default async function uploadProductImages(formData: FormData) {
       if(!file) return JSON.stringify({ success: false, error: 'File not provided' });
 
       let imageURL = '';
+      const uniqueId = uuidv4();
+      const fileKey = `${file.name}-${uniqueId}`;
 
       console.log(file.name);
 
@@ -31,7 +33,7 @@ export default async function uploadProductImages(formData: FormData) {
           // Configure the upload parameters
           const uploadParams = {
               Bucket: bucketName,
-              Key: file.name,
+              Key: fileKey,
               Body: buffer,
               ContentType: `image/${fileExtension}`,
           };
@@ -41,7 +43,7 @@ export default async function uploadProductImages(formData: FormData) {
 
           console.log("Upload successful: ", data);
 
-          const signedUrl = `https://onestop-vyapar.s3.ap-south-1.amazonaws.com/${file.name}`;
+          const signedUrl = `https://onestop-vyapar.s3.ap-south-1.amazonaws.com/${fileKey}`;
           imageURL = signedUrl;
       }else{
           return JSON.stringify({ success: false, error: "Only .png, .jpg, .jpeg files are allowed"});
