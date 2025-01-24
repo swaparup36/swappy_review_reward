@@ -164,7 +164,7 @@ export async function POST(req: NextRequest){
             6
         );
 
-        console.log("escrowPrivatekey: ", escrowPrivatekey); // TO REMOVE IN DEPLOYMENT
+        // console.log("escrowPrivatekey: ", escrowPrivatekey); // TO REMOVE IN DEPLOYMENT
 
         // Check if the user has enough balance
         const response = await axios.post(

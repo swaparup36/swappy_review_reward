@@ -128,7 +128,7 @@ export async function POST(req: NextRequest){
         );
 
         
-        console.log("escrowPrivatekey: ", escrowPrivatekey); // TO REMOVE IN DEPLOYMENT
+        // console.log("escrowPrivatekey: ", escrowPrivatekey); // TO REMOVE IN DEPLOYMENT
 
         const signature = await sendAndConfirmTransaction(connection, transaction, [escrowKeyPair]);
 
