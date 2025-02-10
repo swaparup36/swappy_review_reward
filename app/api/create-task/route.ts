@@ -7,6 +7,7 @@ import pkg from 'bs58';
 import calculateEquivalentUSDC from "@/app/utils/CalculateEquivalentUSDC";
 import AirdropSOL from "@/app/utils/Airdrop";
 import PayComission from "@/app/utils/PayComission";
+import redis from "@/app/utils/redisClient";
 
 const prisma = new PrismaClient();
 const connection = new Connection(clusterApiUrl("devnet"));
@@ -50,6 +51,9 @@ export async function POST(req: NextRequest){
                 message: 'Escrow private key not found'
             });
         }
+
+        // Clear Redis Cache
+        await redis.del('alltasks');
 
         const escrowPrivatekey = decode(process.env.ESCROW_PRIVATE_KEY);
         const usdcMintAddress = new PublicKey('4zMMC9srt5Ri5X14GAgXhaHii3GnPAEERYPJgZJDncDU');
